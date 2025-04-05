@@ -79,7 +79,6 @@ describe('NBAService', () => {
         await nbaService.getDraftPickCountByTeamId(9999);
       } catch (err: any) {
         expect(err).to.be.an('error');
-        console.log(err.message);
         expect(err.message).to.include('Failed to fetch draft pick count for team with ID 9999');
       }
     });
