@@ -32,9 +32,10 @@ Due to the nature of the "BallDontLie" API, I am making a few assumptions:
 ## Installation
 1. Clone the repository
 2. Create a `.env` file and add your BallDontLie API key as `BALLDONTLIE_API_KEY=your_api_key`
-3. Install dependencies with `npm install`
-4. Run the app locally with `npm run dev`
-5. Run test suites with `npm run test` or individually:
+3. Change your node version to `v18.20.3`
+4. Install dependencies with `npm install`
+5. Run the app locally with `npm run dev`
+6. Run test suites with `npm run test` or individually:
     - Unit tests `npm run test:unit`
     - Contract tests `npm run test:contract`
 
