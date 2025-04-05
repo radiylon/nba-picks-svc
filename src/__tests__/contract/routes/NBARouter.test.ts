@@ -2,7 +2,10 @@ import request from 'supertest';
 import { expect } from 'chai';
 import app from '../../../app';
 
-describe('NBARouter', () => {
+describe('NBARouter', function() {
+  // NOTE: This is a workaround to fix a timeout issue on StackBlitz
+  this.timeout(10000);
+
   const mockResponse = {
     "Team Name": "Atlanta Hawks",
     "Draft Rounds": {
