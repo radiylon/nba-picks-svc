@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import NBAService from "../services/NBAService";
-
+import { NBAError } from "../helpers/Error";
 export default class NBAController {
   constructor(
     private nbaService: NBAService = new NBAService(),
   ) {}
-
+  
   getDraftPickCountByTeamId = async (
     req: Request,
     res: Response,
@@ -16,8 +16,12 @@ export default class NBAController {
       const numericTeamId = Number(teamId);
       
       if (isNaN(numericTeamId)) {
-        const error = new Error('Invalid team ID. Team ID must be a number.') as any;
-        error.status = 400;
+        const error = new NBAError(
+          'Invalid team ID. Team ID must be a number.',
+          'INVALID_TEAM_ID', 
+          400, 
+          { teamId }
+        );
         throw error;
       }
 

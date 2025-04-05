@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { ErrorRequestHandler } from 'express';
 import NBARouter from './routes/NBARouter';
 import { errorHandler } from './middleware/NBAMiddleware';
 
@@ -8,6 +8,6 @@ const app = express();
 app.use('/v1', NBARouter());
 
 // Error handling middleware
-app.use(errorHandler);
+app.use(errorHandler as unknown as ErrorRequestHandler);
 
 export default app;

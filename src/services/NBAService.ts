@@ -1,5 +1,6 @@
 import { ApiResponse, BalldontlieAPI as bdlAPI, NBAPlayer, NBATeam } from "@balldontlie/sdk";
 import config from "../config/config";
+import { NBAError } from "../helpers/Error";
 
 interface TeamDraftPickCounts {
   "Team Name": string;
@@ -15,39 +16,80 @@ export default class NBAService {
 
   constructor() {
     if (!config.ballDontLieApiKey) {
-      throw new Error('BallDontLie API key is not configured');
+      throw new NBAError(
+        'BallDontLie API key is not configured',
+        'API_KEY_MISSING',
+        500,
+      );
     }
     this.api = new bdlAPI({ apiKey: config.ballDontLieApiKey });
   }
 
+  /**
+   * Fetches all NBA teams and filters them to only include East and West conference teams.
+   * @returns A promise that resolves to an ApiResponse containing an array of NBATeam objects.
+   * @throws NBAError if the API call fails or the response is not valid.
+   */
   async getTeams(): Promise<ApiResponse<NBATeam[]>> {
     try {
       const teams = await this.api.nba.getTeams();
       const filteredTeams = teams.data.filter((t: NBATeam) => t.conference === 'East' || t.conference === 'West');
       return { data: filteredTeams};
     } catch(err) {
-      throw new Error(`Failed to fetch NBA teams: ${err}`);
+      throw new NBAError(
+        'Failed to fetch NBA teams',
+        'TEAMS_FETCH_ERROR',
+        500,
+      );
     }
   }
 
+  /**
+   * Fetches an NBA team by its ID.
+   * @param teamId The ID of the team to fetch.
+   * @returns A promise that resolves to an ApiResponse containing an NBATeam object.
+   * @throws NBAError if the API call fails or the response is not valid.
+   */
   async getTeamById(teamId: number): Promise<ApiResponse<NBATeam>> {
     try {
       const team = await this.api.nba.getTeam(teamId);
       return team;
     } catch(err) {
-      throw new Error(`Failed to fetch NBA team with ID ${teamId}: ${err}`);
+      throw new NBAError(
+        `Failed to fetch NBA team with ID ${teamId}`,
+        'TEAM_FETCH_ERROR',
+        404,
+        { teamId }
+      );
     }
   }
 
+  /**
+   * Fetches NBA players for a given team ID.
+   * @param teamId The ID of the team to fetch players for.
+   * @returns A promise that resolves to an ApiResponse containing an array of NBAPlayer objects.
+   * @throws NBAError if the API call fails or the response is not valid.
+   */
   async getPlayersByTeamId(teamId: number): Promise<ApiResponse<NBAPlayer[]>> {
     try {
       const players = await this.api.nba.getPlayers({ team_ids: [teamId] });
       return players;
     } catch(err) {
-      throw new Error(`Failed to fetch NBA players for team with ID ${teamId}: ${err}`);
+      throw new NBAError(
+        `Failed to fetch NBA players for team with ID ${teamId}`,
+        'PLAYERS_FETCH_ERROR',
+        404,
+        { teamId }
+      );
     }
   }
   
+  /**
+   * Fetches the team name and draft pick count for a given team ID (ex. 1, 2, null)
+   * @param teamId The ID of the team to fetch draft pick count for.
+   * @returns A promise that resolves to an object containing the team name and draft pick counts.
+   * @throws NBAError if the API call fails or the response is not valid.
+   */
   async getDraftPickCountByTeamId(teamId: number): Promise<TeamDraftPickCounts> {
     try {
       const [team, players] = await Promise.all([
@@ -80,9 +122,12 @@ export default class NBAService {
         "Draft Rounds": draftPickCounts
       };
     } catch(err) {
-      const error = new Error(`Failed to fetch draft pick count for team with ID ${teamId}`) as any;
-      error.status = 404;
-      throw error;
+      throw new NBAError(
+        `Failed to fetch draft pick count for team with ID ${teamId}`,
+        'DRAFT_PICKS_FETCH_ERROR',
+        404,
+        { teamId }
+      );
     }
   }
 }

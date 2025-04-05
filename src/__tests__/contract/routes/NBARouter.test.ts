@@ -24,7 +24,9 @@ describe('NBARouter', function() {
     expect(response.body).to.deep.equal({
       error: {
         message: 'Invalid team ID. Team ID must be a number.',
-        status: 400
+        errorCode: 'INVALID_TEAM_ID',
+        status: 400,
+        metadata: { teamId: 'invalid' }
       }
     });
   });
@@ -38,7 +40,9 @@ describe('NBARouter', function() {
     expect(response.body).to.deep.equal({
       error: {
         message: 'Failed to fetch draft pick count for team with ID 9999',
-        status: 404
+        errorCode: 'DRAFT_PICKS_FETCH_ERROR',
+        status: 404,
+        metadata: { teamId: 9999 }
       }
     });
   });
